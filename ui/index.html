@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Responsive Agent Platform — AI Research & Ingestion</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="logo-area">
+      <span class="logo-badge">ADK 2.0</span>
+      <span class="logo-title">Responsive Agent Platform</span>
+    </div>
+    <div class="tenant-selector-area">
+      <label for="tenantInput">Tenant ID:</label>
+      <input type="text" id="tenantInput" value="default" placeholder="default">
+      <span id="apiStatusBadge" class="badge badge-ready">API Online</span>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="nav-tabs">
+    <button class="nav-tab active" data-tab="tab-chat">💬 Chat & Grounded Research</button>
+    <button class="nav-tab" data-tab="tab-ingest">📁 Knowledge Ingestion</button>
+    <button class="nav-tab" data-tab="tab-mcp">🛠️ MCP Toolset Registry</button>
+    <button class="nav-tab" data-tab="tab-config">⚙️ Agent Configuration</button>
+    <button class="nav-tab" data-tab="tab-traces">📊 Observability & Traces</button>
+  </nav>
+
+  <!-- Main Workspace Panes -->
+  <main class="tab-content-container">
+
+    <!-- TAB 1: Chat & Research -->
+    <section id="tab-chat" class="tab-pane active">
+      <div class="chat-container">
+        <!-- Main Chat Box -->
+        <div class="chat-main">
+          <div class="chat-header">
+            <div>
+              <strong>Multi-Agent Research Pipeline</strong>
+              <span style="font-size: 0.8rem; color: var(--text-secondary); margin-left: 0.5rem;" id="activeSessionDisplay">Session: sess_default</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <label class="toggle-control" title="Toggle display of Retrieved Evidence Sources in chat responses (Default: OFF)">
+                <input type="checkbox" id="toggleShowSources">
+                <span class="toggle-slider"></span>
+                <span class="toggle-label">📚 Show Sources</span>
+              </label>
+              <button class="btn-secondary btn-sm" id="btnNewSession">➕ New Session</button>
+              <button class="btn-secondary btn-sm" id="btnClearHistory">🗑️ Clear Chat</button>
+            </div>
+          </div>
+
+          <div class="chat-history" id="chatHistory">
+            <div class="message-card message-assistant">
+              <div class="message-sender">
+                <span>Platform Orchestrator</span>
+                <span class="badge badge-ready">Grounding Ready</span>
+              </div>
+              <div class="message-body">
+                Hello! I am your AI Research Assistant powered by <strong>Google ADK Multi-Agent Orchestration</strong>.
+                You can ask questions regarding your ingested documents (PDF, DOCX, Text), web snapshots, or connected MCP tools.
+                <br><br>
+                Try asking:
+                <ul style="margin-left: 1.25rem; margin-top: 0.5rem;">
+                  <li><em>"What are the key points in the architecture document?"</em></li>
+                  <li><em>"Summarize the latest technical specifications."</em></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic Status Breadcrumb Stream -->
+          <div id="liveBreadcrumbs" style="display: none; padding: 0.5rem 1rem;">
+            <div class="status-breadcrumbs">
+              <div class="spinner"></div>
+              <span id="breadcrumbText">Analysing your query...</span>
+            </div>
+          </div>
+
+          <!-- Input Bar -->
+          <div class="chat-input-bar">
+            <textarea id="chatInput" placeholder="Ask a question or enter a research prompt... (Shift+Enter for newline)"></textarea>
+            <button class="btn-primary" id="btnSendChat">Send 🚀</button>
+          </div>
+        </div>
+
+        <!-- Sidebar: Active Context & Provenance Inspector -->
+        <div class="chat-sidebar">
+          <div class="sidebar-section-title">Execution Context</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);">
+            <p><strong>Session ID:</strong> <span id="sidebarSessionId" style="font-family: var(--font-mono);">sess_default</span></p>
+            <p style="margin-top: 0.4rem;"><strong>Reranker:</strong> Deterministic Cross-Encoder</p>
+            <p style="margin-top: 0.4rem;"><strong>Memory:</strong> STM Scratchpad + LTM Fact Bank</p>
+            <p style="margin-top: 0.4rem;"><strong>Verification:</strong> Strict Grounding Loop</p>
+            <div style="margin-top: 0.6rem; padding-top: 0.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+              <span><strong>Show Sources in Chat:</strong></span>
+              <label class="toggle-control toggle-inline" title="Toggle display of Retrieved Evidence Sources (Default: OFF)">
+                <input type="checkbox" id="toggleShowSourcesSidebar">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
+
+          <div class="sidebar-section-title">Citation Inspector</div>
+          <div id="citationInspector" style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4;">
+            <p style="font-style: italic;">Click on any citation badge in an assistant answer to inspect its retrieved text, source URI, page number, and rerank score.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: Ingestion (Files & Web) -->
+    <section id="tab-ingest" class="tab-pane">
+      <div class="grid-two-cols">
+        <!-- Polymorphic File Upload -->
+        <div class="card">
+          <div class="card-title">📄 Polymorphic Document Upload</div>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+            Upload PDF, DOCX, TXT, or Markdown documents to be parsed, chunked, and indexed with hybrid dense + BM25 sparse vectors.
+          </p>
+          <div class="dropzone" id="fileDropzone">
+            <p style="font-weight: 500;">Drag and drop files here</p>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Supports .pdf, .docx, .txt, .md (single or batch)</p>
+            <input type="file" id="fileInput" multiple style="display: none;" accept=".pdf,.docx,.txt,.md">
+            <button class="btn-secondary btn-sm" style="margin-top: 0.75rem;" onclick="document.getElementById('fileInput').click()">Select Files</button>
+          </div>
+          <div id="uploadFeedback" style="margin-top: 0.75rem; font-size: 0.85rem;"></div>
+        </div>
+
+        <!-- Web URL Crawler Registration -->
+        <div class="card">
+          <div class="card-title">🌐 Web URL Registration & Refresh Scheduler</div>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+            Register web documentation or article URLs with scheduled background re-indexing.
+          </p>
+          <form id="urlIngestForm" style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <div>
+              <label style="font-size: 0.8rem; color: var(--text-secondary);">Target URL:</label>
+              <input type="url" id="urlInput" placeholder="https://example.com/docs" required>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <div style="flex: 1;">
+                <label style="font-size: 0.8rem; color: var(--text-secondary);">Refresh Interval:</label>
+                <input type="number" id="refreshValue" value="24" min="1">
+              </div>
+              <div style="flex: 1;">
+                <label style="font-size: 0.8rem; color: var(--text-secondary);">Unit:</label>
+                <select id="refreshUnit">
+                  <option value="hour" selected>Hour(s)</option>
+                  <option value="minute">Minute(s)</option>
+                  <option value="day">Day(s)</option>
+                  <option value="week">Week(s)</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="btn-primary" style="margin-top: 0.5rem;">Register Web Source 🌐</button>
+          </form>
+          <div id="urlFeedback" style="margin-top: 0.75rem; font-size: 0.85rem;"></div>
+        </div>
+      </div>
+
+      <!-- Ingestion Sources Monitor Table -->
+      <div class="card" style="flex: 1; display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <div class="card-title" style="margin-bottom: 0;">📚 Ingested Knowledge Sources</div>
+          <button class="btn-secondary btn-sm" id="btnRefreshSources">🔄 Refresh List</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Source Name</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Chunks Indexed</th>
+                <th>Refresh Interval</th>
+                <th>Created At</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="sourcesTableBody">
+              <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading sources...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: MCP Registry -->
+    <section id="tab-mcp" class="tab-pane">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+          <h2>Model Context Protocol (MCP) Toolset Registry</h2>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">Connect live external tools, databases, and microservices via stdio, SSE, or streamable HTTP.</p>
+        </div>
+        <button class="btn-primary" id="btnOpenMcpModal">➕ Register MCP Server</button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Server Name</th>
+              <th>Transport</th>
+              <th>Endpoint / Command</th>
+              <th>Action Scope</th>
+              <th>Status</th>
+              <th>Tools Discovered</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="mcpTableBody">
+            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading MCP servers...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 4: Agent Configuration -->
+    <section id="tab-config" class="tab-pane">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+          <h2>Zero-Redeploy Agent Configuration</h2>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">Adjust models, temperatures, token limits, and instructions defined in <code>config/agents.yaml</code>.</p>
+        </div>
+        <button class="btn-primary" id="btnSaveAgentConfig">💾 Save All Changes</button>
+      </div>
+
+      <div class="agent-config-grid" id="agentConfigContainer">
+        <!-- Agent cards dynamically injected here -->
+      </div>
+    </section>
+
+    <!-- TAB 5: Observability & Traces -->
+    <section id="tab-traces" class="tab-pane">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+          <h2>Execution Traces & Observability Audit</h2>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">Audit multi-agent query executions, latencies, token consumption, and grounding checks.</p>
+        </div>
+        <button class="btn-secondary btn-sm" id="btnRefreshTraces">🔄 Refresh Traces</button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Trace ID</th>
+              <th>User Query</th>
+              <th>Rewritten Query (AI Model)</th>
+              <th>Total Latency</th>
+              <th>Tokens (In/Out)</th>
+              <th>Grounding Status</th>
+              <th>Timestamp</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody id="tracesTableBody">
+            <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Loading query traces...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MCP Registration Modal -->
+  <div class="modal-overlay" id="mcpModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Register New MCP Server</h3>
+        <button class="close-btn" id="btnCloseMcpModal">&times;</button>
+      </div>
+      <form id="mcpRegisterForm" style="display: flex; flex-direction: column; gap: 0.85rem;">
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-secondary);">Server Name:</label>
+          <input type="text" id="mcpName" placeholder="e.g. jira-connector, github-mcp" required>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-secondary);">Description:</label>
+          <input type="text" id="mcpDesc" placeholder="External issue tracker integration">
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-secondary);">Transport Type:</label>
+          <select id="mcpTransport">
+            <option value="streamable_http" selected>Streamable HTTP</option>
+            <option value="sse">Server-Sent Events (SSE)</option>
+            <option value="stdio">Stdio Process</option>
+          </select>
+        </div>
+        <div id="mcpEndpointGroup">
+          <label style="font-size: 0.8rem; color: var(--text-secondary);">Endpoint URL:</label>
+          <input type="url" id="mcpEndpoint" placeholder="http://localhost:8080/mcp">
+        </div>
+        <div id="mcpStdioGroup" style="display: none;">
+          <label style="font-size: 0.8rem; color: var(--text-secondary);">Stdio Command & Arguments:</label>
+          <input type="text" id="mcpStdio" placeholder="npx -y @modelcontextprotocol/server-filesystem /tmp">
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-secondary);">Action Scope Policy:</label>
+          <select id="mcpScope">
+            <option value="read_only" selected>read_only (Safe queries only)</option>
+            <option value="read,create">read,create (Permit resource creation)</option>
+            <option value="read,update">read,update (Permit resource modification)</option>
+            <option value="full">full (Unrestricted execution)</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-secondary);">Auth Type:</label>
+          <select id="mcpAuthType">
+            <option value="none" selected>None</option>
+            <option value="bearer">Bearer Token</option>
+            <option value="api_key">API Key</option>
+            <option value="basic">Basic Auth</option>
+          </select>
+        </div>
+        <div id="mcpSecretGroup">
+          <label style="font-size: 0.8rem; color: var(--text-secondary);">Auth Secret / API Token (Encrypted with AES):</label>
+          <input type="password" id="mcpSecret" placeholder="Secret key / token">
+        </div>
+        <button type="submit" class="btn-primary" style="margin-top: 0.5rem;">Register & Probe Server 🚀</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Trace Drilldown Modal -->
+  <div class="modal-overlay" id="traceModal">
+    <div class="modal-content" style="max-width: 800px;">
+      <div class="modal-header">
+        <h3>Execution Trace Details</h3>
+        <button class="close-btn" id="btnCloseTraceModal">&times;</button>
+      </div>
+      <div id="traceModalBody" style="font-size: 0.85rem; display: flex; flex-direction: column; gap: 1rem;">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Script -->
+  <script src="app.js"></script>
+</body>
+</html>
