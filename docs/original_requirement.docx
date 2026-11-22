@@ -1,0 +1,25 @@
+Section 1:
+    Requirement giveb by User :
+        Build an agentic platform ( use Google ADK)  where you can configure agents, MCP.
+        Build following agents - search agent RAG, Content Summarizer agent
+        Build MCP connectivity provision in the Agentic Framework.
+        Memory - STM(short term memory), LTM(Long term memory)
+        Orchestration - Use decision making models to prepare the pr
+
+        Use case:
+
+        User will provide n pdfs to ingest as a one-time activity
+        User will provide web-links as content source
+        User will ask a query in the user interface, the orchestrator will pick the appropriate agent and search for the answers in the content using RAG agent ( sourcing both document content and web content)
+
+        Users may give a long text and ask to summarize the content. The summarizer agent should be invoked and appropriate response should be given
+
+        Users should be able to configure any external MCP server in the framework. So when a question is asked by the user, the search agent should look for local content ( RAG agent) and also from MCP connected content.
+
+Section 2:
+    Few following points I got from the high level as part of requirement 
+        1. new mcp service should be configurable in future
+        2. fetch information from rag
+        3.  reranking the information
+        4. accuracy of information is critical
+        5. Ingest the file type as in this requirement it is PDF but in future files can be different-different format
