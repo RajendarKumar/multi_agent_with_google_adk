@@ -1,0 +1,86 @@
+[
+  {
+    "id": "eval_001",
+    "category": "pdf_rag",
+    "question": "What is the primary orchestration framework used in the Responsive Agent platform?",
+    "ground_truth": "The platform is built on Google ADK (Agent Development Kit) with Gemini 2.5 Pro and Flash models.",
+    "expected_sources": ["responsive agent.docx", "original_requirement.docx"]
+  },
+  {
+    "id": "eval_002",
+    "category": "pdf_rag",
+    "question": "What document formats are supported by the pluggable ingestion pipeline?",
+    "ground_truth": "The pipeline natively parses PDF, DOCX, TXT, and Markdown files, extensible to XLSX and PPTX.",
+    "expected_sources": ["responsive agent.docx"]
+  },
+  {
+    "id": "eval_003",
+    "category": "pdf_rag",
+    "question": "How does the platform handle table extraction in PDFs and Word documents?",
+    "ground_truth": "Tables are preserved intact as structured Markdown without splitting rows across chunk boundaries.",
+    "expected_sources": ["responsive agent.docx"]
+  },
+  {
+    "id": "eval_004",
+    "category": "web_rag",
+    "question": "What intervals are supported for scheduling web source freshness refreshes?",
+    "ground_truth": "Web sources can be scheduled for automatic re-ingestion by minute, hour, day, or week intervals.",
+    "expected_sources": ["injestion_flow_tasks.md"]
+  },
+  {
+    "id": "eval_005",
+    "category": "mcp_query",
+    "question": "What is the purpose of the action scope in registered MCP servers?",
+    "ground_truth": "Action scopes enforce permissions such as read_only, read,create, and verb blacklists to prevent unauthorized mutations.",
+    "expected_sources": ["06_dynamic_mcp_agent.md"]
+  },
+  {
+    "id": "eval_006",
+    "category": "mcp_query",
+    "question": "How are credentials for external MCP servers stored securely?",
+    "ground_truth": "Credentials are encrypted at rest using symmetric Fernet AES encryption and decrypted only in-memory.",
+    "expected_sources": ["mcp_registry/factory.py"]
+  },
+  {
+    "id": "eval_007",
+    "category": "memory",
+    "question": "What is the difference between Short-Term Memory (STM) and Long-Term Memory (LTM)?",
+    "ground_truth": "STM is a session scratchpad in PostgreSQL for multi-turn state, while LTM is a persistent semantic vector bank for cross-session user facts.",
+    "expected_sources": ["01_memory_architecture_stm_vs_ltm.md"]
+  },
+  {
+    "id": "eval_008",
+    "category": "reranking",
+    "question": "Why does the platform use a deterministic Cross-Encoder instead of an LLM for reranking?",
+    "ground_truth": "Cross-encoders evaluate query-document attention mathematically in under 180ms with zero LLM generation tokens or latency.",
+    "expected_sources": ["07_deterministic_reranker.md"]
+  },
+  {
+    "id": "eval_009",
+    "category": "verification",
+    "question": "How does the Verifier Agent detect hallucinations in draft answers?",
+    "ground_truth": "It performs Natural Language Inference entailment checking on atomic claims against reranked evidence and triggers revision if ungrounded.",
+    "expected_sources": ["08_grounded_synthesizer_and_verifier_loop.md"]
+  },
+  {
+    "id": "eval_010",
+    "category": "unanswerable",
+    "question": "What is the CEO's personal home address and private phone number?",
+    "ground_truth": "I don't have enough verified information in the provided documentation to answer that.",
+    "expected_sources": []
+  },
+  {
+    "id": "eval_011",
+    "category": "streaming",
+    "question": "What protocol is used for streaming real-time status breadcrumbs to the client?",
+    "ground_truth": "Server-Sent Events (SSE) with text/event-stream format and X-Accel-Buffering: no header.",
+    "expected_sources": ["02_api_and_sse_streaming.md"]
+  },
+  {
+    "id": "eval_012",
+    "category": "observability",
+    "question": "What telemetry metrics are captured in the query_traces table?",
+    "ground_truth": "It records user query, rewritten query, latency in ms, token usage, rerank scores, evidence chunks, and grounding pass flag.",
+    "expected_sources": ["09_observability_and_query_traces.md"]
+  }
+]
