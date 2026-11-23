@@ -439,6 +439,7 @@ async def delete_source(
 
 # ── 8. Manual Re-Ingest Trigger ─────────────────────────────────────────────
 @router.post("/sources/{source_id}/reingest")
+@router.post("/reingest/{source_id}")
 async def trigger_reingest(
     source_id: str,
     background_tasks: BackgroundTasks,

@@ -92,3 +92,18 @@ async def test_pipeline_flags_failure_on_empty_content():
 
     assert mock_source.ingestion_status == IngestionStatus.FAILED
     assert "empty content" in mock_source.ingestion_error.lower()
+
+
+def test_reingest_endpoints_routing(client):
+    """Verify both /api/ingest/sources/{id}/reingest and /api/ingest/reingest/{id} are routed to reingest handler."""
+    with patch("api.routes.ingest.dispatch_ingestion_task", return_value="in_process"):
+        # Both endpoints should route to trigger_reingest and return 200
+        resp1 = client.post("/api/ingest/sources/test-src-123/reingest")
+        assert resp1.status_code == 200
+        assert resp1.json()["source_id"] == "test-src-123"
+
+        resp2 = client.post("/api/ingest/reingest/test-src-123")
+        assert resp2.status_code == 200
+        assert resp2.json()["source_id"] == "test-src-123"
+
+

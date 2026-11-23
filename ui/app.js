@@ -543,10 +543,14 @@ async function loadSources() {
 
 window.reingestSource = async function(id) {
   try {
-    await fetch(`/api/ingest/reingest/${id}`, { method: "POST", headers: { "X-Tenant-ID": getTenantId() } });
+    const res = await fetch(`/api/ingest/sources/${id}/reingest`, { method: "POST", headers: { "X-Tenant-ID": getTenantId() } });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.detail || `Server returned ${res.status}`);
+    }
     loadSources();
   } catch (err) {
-    alert("Reingest error: " + err.message);
+    alert("Reindex error: " + err.message);
   }
 };
 
@@ -687,12 +691,7 @@ async function loadAgentConfig() {
         </div>
         <div>
           <label style="font-size: 0.75rem; color: var(--text-secondary);">Model:</label>
-          <select class="agent-model">
-            <option value="gemini-2.5-pro" ${cfg.model === 'gemini-2.5-pro' ? 'selected' : ''}>gemini-2.5-pro (Deep reasoning)</option>
-            <option value="gemini-2.5-flash" ${cfg.model === 'gemini-2.5-flash' ? 'selected' : ''}>gemini-2.5-flash (Fast & low-latency)</option>
-            <option value="gemini-1.5-pro" ${cfg.model === 'gemini-1.5-pro' ? 'selected' : ''}>gemini-1.5-pro</option>
-            <option value="gemini-1.5-flash" ${cfg.model === 'gemini-1.5-flash' ? 'selected' : ''}>gemini-1.5-flash</option>
-          </select>
+          <input type="text" class="agent-model" value="${escapeHtml(cfg.model || "")}">
         </div>
         <div>
           <label style="font-size: 0.75rem; color: var(--text-secondary);">Temperature: <span class="temp-val">${cfg.temperature}</span></label>
